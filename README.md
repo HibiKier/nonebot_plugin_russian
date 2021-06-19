@@ -38,3 +38,9 @@
   MAX_BET_GOLD = 1000       # 赌注的最大上限（防止直接梭哈白给天台见）
   
   ```
+  
+## 部分效果展示
+
+![](https://github.com/HibiKier/nonebot_plugin_russian/blob/main/docs/0.png)
+
+![](https://github.com/HibiKier/nonebot_plugin_russian/blob/main/docs/1.png)
