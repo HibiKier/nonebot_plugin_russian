@@ -38,7 +38,7 @@
       MAX_BET_GOLD = 1000       # 赌注的最大上限（防止直接梭哈白给天台见）
   
   2.在bot入口文件添加
-    nonebot.load_plugin("nonebot_plugin_gamedraw")
+    nonebot.load_plugin("nonebot_plugin_russian")
   ```
   
 ## 部分效果展示
