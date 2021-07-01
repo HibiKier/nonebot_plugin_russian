@@ -205,7 +205,6 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
                 time.time() - rs_player[event.group_id]['time'] > 30:
             await shot.send('决斗已过时，强行结算...')
             await end_game(bot, event)
-            return
         if not rs_player[event.group_id][2] and time.time() - rs_player[event.group_id]['time'] > 30:
             rs_player[event.group_id][1] = 0
             rs_player[event.group_id][2] = 0
