@@ -247,7 +247,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
 
     if at_:
         at_ = at_[0]
-        at_player_name = await bot.get_group_member_info(group_id=event.group_id, user_id=event.user_id)
+        at_player_name = await bot.get_group_member_info(group_id=event.group_id, user_id=int(at_))
         at_player_name = at_player_name['card'] if at_player_name['card'] else at_player_name['nickname']
         msg = f'{player1_name} 向 {MessageSegment.at(at_)} 发起了决斗！请 {at_player_name} 在30秒内回复‘接受对决’ or ‘拒绝对决’，超时此次决斗作废！'
     else:
