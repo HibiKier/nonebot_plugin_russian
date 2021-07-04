@@ -41,6 +41,12 @@
     nonebot.load_plugin("nonebot_plugin_russian")
   ```
   
+## 更新
+
+### 2021/7/4
+
+  * 当BOT未配置NICKNAME时，将结算字符串中的bot名称改成 ‘本裁判’
+  
 ## 部分效果展示
 
 ![](https://github.com/HibiKier/nonebot_plugin_russian/blob/main/docs/0.png)
