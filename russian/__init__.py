@@ -31,6 +31,8 @@ scheduler = require("nonebot_plugin_apscheduler").scheduler
 
 driver: nonebot.Driver = nonebot.get_driver()
 
+bot_name = list(driver.config.nickname)[0] if driver.config.nickname else '本裁判'
+
 sign_gold = driver.config.sign_gold if driver.config.sign_gold else [1, 100]
 max_bet_gold = driver.config.max_bet_gold if driver.config.max_bet_gold else 1000
 russian_path = driver.config.russian_path if driver.config.russian_path else ''
@@ -365,7 +367,7 @@ async def end_game(bot: Bot, event: GroupMessageEvent):
                                   f'\t累计败场：{lose_user["lose_count"]}\n'
                                   f'\t累计输掉金币：{lose_user["lose_gold"]}\n'
                                   f'-------------------\n'
-                                  f'哼哼，{list(bot.config.nickname)[0]}从中收取了 {float(rand)}%({fee}金币) 作为手续费！\n'
+                                  f'哼哼，{bot_name}从中收取了 {float(rand)}%({fee}金币) 作为手续费！\n'
                                   f'子弹排列：{bullet_str[:-1]}')
     rs_player[event.group_id] = {}
     with open(file, 'w', encoding='utf8') as f:
