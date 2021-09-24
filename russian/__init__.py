@@ -14,7 +14,7 @@ try:
 except ModuleNotFoundError:
     import json
 
-__plugin_name__ = '俄罗斯轮盘'
+__zx_plugin_name__ = '俄罗斯轮盘'
 
 __plugin_usage__ = '''俄罗斯轮盘帮助：
     开启游戏：装弹 [子弹数] [金额](默认200金币) [at](指定决斗对象，为空则所有群友都可接受决斗)
