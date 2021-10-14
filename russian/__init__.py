@@ -205,7 +205,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
                                 f' {rs_player[event.group_id]["player2"]}的对决还未结束！')
         if rs_player[event.group_id][1] and rs_player[event.group_id][2] and \
                 time.time() - rs_player[event.group_id]['time'] > 30:
-            await shot.send('决斗已过时，强行结算...')
+            await rssian.send('决斗已过时，强行结算...')
             await end_game(bot, event)
         if not rs_player[event.group_id][2] and time.time() - rs_player[event.group_id]['time'] > 30:
             rs_player[event.group_id][1] = 0
