@@ -411,7 +411,7 @@ class RussianManager:
                 return random.choice(
                     [
                         f"不要打扰 {player1_name} 和 {player2_name} 的决斗啊！",
-                        "给我好好做好一个观众！不然list(bot.config.nickname)[0]就要生气了",
+                        f"给我好好做好一个观众！不然{bot_name}就要生气了",
                         f"不要捣乱啊baka{nickname}！",
                     ]
                 )
