@@ -17,11 +17,11 @@ except ModuleNotFoundError:
 driver: nonebot.Driver = nonebot.get_driver()
 
 # 签到金币随机范围
-sign_gold = driver.config.sign_gold if driver.config.sign_gold else [1, 100]
+sign_gold = driver.config.sign_gold or [1, 100]
 # bot昵称
 bot_name = list(driver.config.nickname)[0] if driver.config.nickname else "本裁判"
 # 最大赌注
-max_bet_gold = driver.config.max_bet_gold if driver.config.max_bet_gold else 1000
+max_bet_gold = driver.config.max_bet_gold or 1000
 
 
 async def rank(player_data: dict, group_id: int, type_: str) -> str:
@@ -205,7 +205,8 @@ class RussianManager:
         ):
             return "吃瓜群众不要捣乱！黄牌警告！"
         if time.time() - self._current_player[event.group_id]["time"] <= 30:
-            return f'{self._current_player[event.group_id]["player1"]} 和 {self._current_player[event.group_id]["player2"]} 比赛并未超时，请继续比赛...'
+            return f'{self._current_player[event.group_id]["player1"]} ' \
+                   f'和 {self._current_player[event.group_id]["player2"]} 比赛并未超时，请继续比赛...'
         win_name = (
             self._current_player[event.group_id]["player1"]
             if self._current_player[event.group_id][2]
@@ -304,7 +305,9 @@ class RussianManager:
         player1_name = self._current_player[event.group_id]["player1"]
         player2_name = self._current_player[event.group_id]["player2"]
         current_index = self._current_player[event.group_id]["index"]
-        _tmp = self._current_player[event.group_id]["bullet"][current_index: current_index + count]
+        _tmp = self._current_player[event.group_id]["bullet"][
+            current_index : current_index + count
+        ]
         if 1 in _tmp:
             flag = _tmp.index(1) + 1
         else:
@@ -360,7 +363,7 @@ class RussianManager:
                         "终究还是你先走一步...",
                     ]
                 )
-                + f'\n第 {current_index + flag} 发子弹送走了你...',
+                + f"\n第 {current_index + flag} 发子弹送走了你...",
                 at_sender=True,
             )
             win_name = (
@@ -446,16 +449,16 @@ class RussianManager:
         :param msg: 排行榜类型
         :param group_id: 群号
         """
-        if msg in ['金币排行']:
-            return await rank(self._player_data, group_id, 'gold_rank')
-        if msg in ['胜场排行', '胜利排行']:
-            return await rank(self._player_data, group_id, 'win_rank')
-        if msg in ['败场排行', '失败排行']:
-            return await rank(self._player_data, group_id, 'lose_rank')
-        if msg == '欧洲人排行':
-            return await rank(self._player_data, group_id, 'make_gold')
-        if msg == '慈善家排行':
-            return await rank(self._player_data, group_id, 'lose_gold')
+        if msg in ["金币排行"]:
+            return await rank(self._player_data, group_id, "gold_rank")
+        if msg in ["胜场排行", "胜利排行"]:
+            return await rank(self._player_data, group_id, "win_rank")
+        if msg in ["败场排行", "失败排行"]:
+            return await rank(self._player_data, group_id, "lose_rank")
+        if msg == "欧洲人排行":
+            return await rank(self._player_data, group_id, "make_gold")
+        if msg == "慈善家排行":
+            return await rank(self._player_data, group_id, "lose_gold")
 
     def check_game_is_start(self, group_id: int) -> bool:
         """
