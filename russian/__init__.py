@@ -4,9 +4,11 @@ from nonebot.adapters.cqhttp import (
     Bot,
     GroupMessageEvent,
     MessageSegment,
+    Message
 )
 from nonebot.typing import T_State
-from .util import get_message_text, is_number, get_message_at
+from nonebot.params import Depends, CommandArg, State
+from .utils import is_number, get_message_at
 from .data_source import RussianManager
 from pathlib import Path
 from nonebot import logger
@@ -74,7 +76,7 @@ my_gold = on_command("我的金币", permission=GROUP, priority=5, block=True)
 
 
 @sign.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(event: GroupMessageEvent):
     msg, gold = russian_manager.sign(event)
     await sign.send(msg, at_sender=True)
     if gold != -1:
@@ -82,27 +84,28 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 
 @accept.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(event: GroupMessageEvent):
     msg = russian_manager.accept(event)
     await accept.send(msg, at_sender=True)
 
 
 @refuse.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(bot: Bot, event: GroupMessageEvent):
     msg = await russian_manager.refuse(bot, event)
     await refuse.send(msg, at_sender=True)
 
 
 @settlement.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(bot: Bot, event: GroupMessageEvent):
     msg = russian_manager.settlement(event)
     await settlement.send(msg, at_sender=True)
     await russian_manager.end_game(bot, event)
 
 
-@russian.args_parser
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
-    msg = get_message_text(event.json())
+async def get_bullet_num(event: GroupMessageEvent, arg: Message = CommandArg(), state: T_State = State()):
+    msg = arg.extract_plain_text().strip()
+    if state["bullet_num"]:
+        return state
     if msg in ["取消", "算了"]:
         await russian.finish("已取消操作...")
     try:
@@ -114,12 +117,12 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
         await russian.reject("输入子弹数量必须是数字啊喂！")
     if int(msg) < 1 or int(msg) > 6:
         await russian.reject("子弹数量必须大于0小于7！")
-    state["bullet_num"] = int(msg)
+    return {**state, "bullet_num": int(msg)}
 
 
 @russian.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
-    msg = get_message_text(event.json())
+async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State(), arg: Message = CommandArg()):
+    msg = arg.extract_plain_text().strip()
     if msg == "帮助":
         await russian.finish(__plugin_usage__)
     try:
@@ -143,7 +146,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 
 @russian.got("bullet_num", prompt="请输入装填子弹的数量！(最多6颗)")
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(bot: Bot, event: GroupMessageEvent, state: T_State = Depends(get_bullet_num)):
     bullet_num = state["bullet_num"]
     at_ = state["at"]
     money = state["money"] if state.get("money") else 200
@@ -167,7 +170,8 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
             if at_player_name["card"]
             else at_player_name["nickname"]
         )
-        msg = f"{player1_name} 向 {MessageSegment.at(at_)} 发起了决斗！请 {at_player_name} 在30秒内回复‘接受对决’ or ‘拒绝对决’，超时此次决斗作废！"
+        msg = f"{player1_name} 向 {MessageSegment.at(at_)} 发起了决斗！请 {at_player_name} 在30秒内回" \
+              f"复‘接受对决’ or ‘拒绝对决’，超时此次决斗作废！"
     else:
         at_ = 0
         msg = "若30秒内无人接受挑战则此次对决作废【首次游玩请发送 ’俄罗斯轮盘帮助‘ 来查看命令】"
@@ -177,13 +181,14 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 
 @shot.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
-    count = get_message_text(event.json())
+async def _(bot: Bot, event: GroupMessageEvent, arg: Message = CommandArg()):
+    count = arg.extract_plain_text().strip()
     if is_number(count):
         count = int(count)
         if count > 7 - russian_manager.get_current_bullet_index(event):
             await shot.finish(
-                f"你不能开{count}枪，大于剩余的子弹数量，剩余子弹数量：{7 - russian_manager.get_current_bullet_index(event)}"
+                f"你不能开{count}枪，大于剩余的子弹数量，"
+                f"剩余子弹数量：{7 - russian_manager.get_current_bullet_index(event)}"
             )
     else:
         count = 1
@@ -191,7 +196,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 
 @record.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(event: GroupMessageEvent):
     user = russian_manager.get_user_data(event)
     await record.send(
         f"俄罗斯轮盘\n"
@@ -204,13 +209,13 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
 
 
 @russian_rank.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(event: GroupMessageEvent, state: T_State = State()):
     msg = await russian_manager.rank(state["_prefix"]["raw_command"], event.group_id)
     await russian_rank.send(msg)
 
 
 @my_gold.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(event: GroupMessageEvent):
     gold = russian_manager.get_user_data(event)["gold"]
     await my_gold.send(f"你还有 {gold} 枚金币", at_sender=True)
 
