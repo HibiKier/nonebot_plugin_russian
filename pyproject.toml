@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "nonebot_plugin_russian"
+packages = [
+    {include = "russian"}
+]
+version = "0.2.1"
+description = "Nonebot2插件 俄罗斯轮盘"
+authors = ["HibiKier <775757368@qq.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7.3"
+nonebot2 = "^2.0.0-beta.1"
+nonebot-adapter-onebot = "^2.0.0-beta.1"
+nonebot-plugin-apscheduler = "^0.1.2"
+ujson = {version = ">=4.0.0", optional = true}
+
+[tool.poetry.dev-dependencies]
+nb-cli = "^0.6.0"
+black = "^22.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
