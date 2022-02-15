@@ -43,6 +43,10 @@
   
 ## 更新
 
+### 2022/2/15
+
+  * fit beat1 [@pull 9](https://github.com/HibiKier/nonebot_plugin_russian/pull/9)
+
 ### 2022/1/29
 
   * 适配nonebot2.beat1
