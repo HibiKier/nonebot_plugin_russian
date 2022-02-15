@@ -1,23 +1,17 @@
 from nonebot import on_command, require
-from nonebot.adapters.cqhttp import (
+from nonebot.adapters.onebot.v11 import (
     GROUP,
     Bot,
     GroupMessageEvent,
     MessageSegment,
-    Message
+    Message,
 )
 from nonebot.typing import T_State
 from nonebot.params import Depends, CommandArg, State
 from .utils import is_number, get_message_at
-from .data_source import RussianManager
-from pathlib import Path
-from nonebot import logger
-import nonebot
+from nonebot.log import logger
+from .data_source import russian_manager, max_bet_gold
 
-try:
-    import ujson as json
-except ModuleNotFoundError:
-    import json
 
 __zx_plugin_name__ = "俄罗斯轮盘"
 
@@ -33,13 +27,6 @@ __plugin_usage__ = """俄罗斯轮盘帮助：
 """
 
 scheduler = require("nonebot_plugin_apscheduler").scheduler
-
-driver: nonebot.Driver = nonebot.get_driver()
-
-max_bet_gold = driver.config.max_bet_gold if driver.config.max_bet_gold else 1000
-russian_path = driver.config.russian_path if driver.config.russian_path else ""
-
-russian_manager = RussianManager(Path(russian_path) / "data" / "russian" / "russian_data.json")
 
 
 sign = on_command("轮盘签到", permission=GROUP, priority=5, block=True)
@@ -102,7 +89,9 @@ async def _(bot: Bot, event: GroupMessageEvent):
     await russian_manager.end_game(bot, event)
 
 
-async def get_bullet_num(event: GroupMessageEvent, arg: Message = CommandArg(), state: T_State = State()):
+async def get_bullet_num(
+    event: GroupMessageEvent, arg: Message = CommandArg(), state: T_State = State()
+):
     msg = arg.extract_plain_text().strip()
     if state["bullet_num"]:
         return state
@@ -121,7 +110,12 @@ async def get_bullet_num(event: GroupMessageEvent, arg: Message = CommandArg(), 
 
 
 @russian.handle()
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State(), arg: Message = CommandArg()):
+async def _(
+    bot: Bot,
+    event: GroupMessageEvent,
+    state: T_State = State(),
+    arg: Message = CommandArg(),
+):
     msg = arg.extract_plain_text().strip()
     if msg == "帮助":
         await russian.finish(__plugin_usage__)
@@ -146,7 +140,9 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = State(), arg: M
 
 
 @russian.got("bullet_num", prompt="请输入装填子弹的数量！(最多6颗)")
-async def _(bot: Bot, event: GroupMessageEvent, state: T_State = Depends(get_bullet_num)):
+async def _(
+    bot: Bot, event: GroupMessageEvent, state: T_State = Depends(get_bullet_num)
+):
     bullet_num = state["bullet_num"]
     at_ = state["at"]
     money = state["money"] if state.get("money") else 200
@@ -158,7 +154,7 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = Depends(get_bul
     if money > user_money:
         await russian.finish("你没有足够的钱支撑起这场挑战", at_sender=True)
 
-    player1_name = event.sender.card if event.sender.nickname else event.sender.nickname
+    player1_name = event.sender.card or event.sender.nickname
 
     if at_:
         at_ = at_[0]
@@ -170,8 +166,10 @@ async def _(bot: Bot, event: GroupMessageEvent, state: T_State = Depends(get_bul
             if at_player_name["card"]
             else at_player_name["nickname"]
         )
-        msg = f"{player1_name} 向 {MessageSegment.at(at_)} 发起了决斗！请 {at_player_name} 在30秒内回" \
-              f"复‘接受对决’ or ‘拒绝对决’，超时此次决斗作废！"
+        msg = (
+            f"{player1_name} 向 {MessageSegment.at(at_)} 发起了决斗！请 {at_player_name} 在30秒内回"
+            f"复‘接受对决’ or ‘拒绝对决’，超时此次决斗作废！"
+        )
     else:
         at_ = 0
         msg = "若30秒内无人接受挑战则此次对决作废【首次游玩请发送 ’俄罗斯轮盘帮助‘ 来查看命令】"
@@ -229,4 +227,3 @@ async def _(event: GroupMessageEvent):
 async def _():
     russian_manager.reset_gold()
     logger.info("每日轮盘签到重置成功...")
-

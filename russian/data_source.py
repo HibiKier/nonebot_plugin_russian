@@ -1,12 +1,13 @@
-from nonebot.adapters.cqhttp import GroupMessageEvent, Message, MessageSegment, Bot
-from typing import Optional, Union, List, Dict
-from nonebot import logger
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, Message, MessageSegment, Bot
+from typing import Optional, Tuple, Union, List, Dict
+from nonebot.log import logger
 from pathlib import Path
 import nonebot
 import asyncio
 import random
 import time
 import os
+from .config import Config
 
 try:
     import ujson as json
@@ -14,14 +15,19 @@ except ModuleNotFoundError:
     import json
 
 
-driver: nonebot.Driver = nonebot.get_driver()
+global_config = nonebot.get_driver().config
+russian_config = Config.parse_obj(global_config.dict())
 
 # 签到金币随机范围
-sign_gold = driver.config.sign_gold or [1, 100]
+sign_gold = russian_config.sign_gold
 # bot昵称
-bot_name = list(driver.config.nickname)[0] if driver.config.nickname else "本裁判"
+bot_name = list(global_config.nickname)[0] if global_config.nickname else "本裁判"
 # 最大赌注
-max_bet_gold = driver.config.max_bet_gold or 1000
+max_bet_gold = russian_config.max_bet_gold
+russian_path = russian_config.russian_path
+
+russian_config = Config.parse_obj(nonebot.get_driver().config.dict())
+max_bet_gold = russian_config.max_bet_gold
 
 
 async def rank(player_data: dict, group_id: int, type_: str) -> str:
@@ -73,11 +79,10 @@ def random_bullet(num: int) -> List[int]:
 
 
 class RussianManager:
-    def __init__(self, file: Optional[Path]):
+    def __init__(self):
         self._player_data = {}
         self._current_player = {}
-        if not file:
-            file = Path() / "data" / "russian" / "russian_data.json"
+        file = russian_path / "data" / "russian" / "russian_data.json"
         self.file = file
         file.parent.mkdir(exist_ok=True, parents=True)
         if not file.exists():
@@ -88,7 +93,7 @@ class RussianManager:
             with open(file, "r", encoding="utf8") as f:
                 self._player_data = json.load(f)
 
-    def sign(self, event: GroupMessageEvent) -> "str, int":
+    def sign(self, event: GroupMessageEvent) -> Tuple[str, int]:
         """
         签到
         :param event: event
@@ -205,8 +210,10 @@ class RussianManager:
         ):
             return "吃瓜群众不要捣乱！黄牌警告！"
         if time.time() - self._current_player[event.group_id]["time"] <= 30:
-            return f'{self._current_player[event.group_id]["player1"]} ' \
-                   f'和 {self._current_player[event.group_id]["player2"]} 比赛并未超时，请继续比赛...'
+            return (
+                f'{self._current_player[event.group_id]["player1"]} '
+                f'和 {self._current_player[event.group_id]["player2"]} 比赛并未超时，请继续比赛...'
+            )
         win_name = (
             self._current_player[event.group_id]["player1"]
             if self._current_player[event.group_id][2]
@@ -585,3 +592,6 @@ class RussianManager:
         self._player_data[group_id][lose_user_id]["lose_count"] += 1
 
         self.save()
+
+
+russian_manager = RussianManager()
