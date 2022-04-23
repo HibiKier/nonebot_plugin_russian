@@ -475,14 +475,14 @@ class RussianManager:
         """
         return self._current_player[group_id][1] != 0
 
-    # def reset_gold(self):
-    #     """
-    #     重置签到
-    #     """
-    #     for group in self._player_data.keys():
-    #         for user_id in self._player_data[group].keys():
-    #             self._player_data[group][user_id]["is_sign"] = False
-    #     self.save()
+    def reset_gold(self):
+        """
+        重置签到
+        """
+        for group in self._player_data.keys():
+            for user_id in self._player_data[group].keys():
+                self._player_data[group][user_id]["is_sign"] = False
+        self.save()
 
     def save(self):
         """
