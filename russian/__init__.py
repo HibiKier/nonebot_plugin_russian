@@ -218,3 +218,13 @@ async def _(event: GroupMessageEvent):
     gold = russian_manager.get_user_data(event)["gold"]
     await my_gold.send(f"你还有 {gold} 枚金币", at_sender=True)
 
+
+# 重置每日签到
+@scheduler.scheduled_job(
+    "cron",
+    hour=0,
+    minute=0,
+)
+async def _():
+    russian_manager.reset_gold()
+    logger.info("每日轮盘签到重置成功...")
