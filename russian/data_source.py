@@ -1,5 +1,6 @@
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, Message, MessageSegment, Bot
 from typing import Optional, Tuple, Union, List, Dict
+from datetime import datetime
 from nonebot.log import logger
 from pathlib import Path
 import nonebot
@@ -99,7 +100,7 @@ class RussianManager:
         :param event: event
         """
         self._init_player_data(event)
-        if self._player_data[str(event.group_id)][str(event.user_id)]["is_sign"]:
+        if self._player_data[str(event.group_id)][str(event.user_id)]["is_sign"].date() == datetime.now().date :
             return "贪心的人是不会有好运的...", -1
         gold = random.randint(sign_gold[0], sign_gold[1])
         self._player_data[str(event.group_id)][str(event.user_id)]["gold"] += gold
@@ -474,14 +475,14 @@ class RussianManager:
         """
         return self._current_player[group_id][1] != 0
 
-    def reset_gold(self):
-        """
-        重置签到
-        """
-        for group in self._player_data.keys():
-            for user_id in self._player_data[group].keys():
-                self._player_data[group][user_id]["is_sign"] = False
-        self.save()
+    # def reset_gold(self):
+    #     """
+    #     重置签到
+    #     """
+    #     for group in self._player_data.keys():
+    #         for user_id in self._player_data[group].keys():
+    #             self._player_data[group][user_id]["is_sign"] = False
+    #     self.save()
 
     def save(self):
         """
@@ -510,7 +511,7 @@ class RussianManager:
                 "lose_gold": 0,
                 "win_count": 0,
                 "lose_count": 0,
-                "is_sign": False,
+                "is_sign": None,
             }
 
     async def end_game(self, bot: Bot, event: GroupMessageEvent):
