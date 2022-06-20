@@ -100,7 +100,7 @@ class RussianManager:
         :param event: event
         """
         self._init_player_data(event)
-        if self._player_data[str(event.group_id)][str(event.user_id)]["is_sign"].date() == datetime.now().date :
+        if self._player_data[str(event.group_id)][str(event.user_id)]["is_sign"]:
             return "贪心的人是不会有好运的...", -1
         gold = random.randint(sign_gold[0], sign_gold[1])
         self._player_data[str(event.group_id)][str(event.user_id)]["gold"] += gold
