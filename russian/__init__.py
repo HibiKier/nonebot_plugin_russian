@@ -7,7 +7,7 @@ from nonebot.adapters.onebot.v11 import (
     Message,
 )
 from nonebot.typing import T_State
-from nonebot.params import Depends, CommandArg, State
+from nonebot.params import Depends, CommandArg
 from .utils import is_number, get_message_at
 from nonebot.log import logger
 from .data_source import russian_manager, max_bet_gold
@@ -26,7 +26,8 @@ __plugin_usage__ = """俄罗斯轮盘帮助：
     【注：同一时间群内只能有一场对决】
 """
 
-scheduler = require("nonebot_plugin_apscheduler").scheduler
+require("nonebot_plugin_apscheduler")
+from nonebot_plugin_apscheduler import scheduler
 
 
 sign = on_command("轮盘签到", permission=GROUP, priority=5, block=True)
@@ -90,7 +91,7 @@ async def _(bot: Bot, event: GroupMessageEvent):
 
 
 async def get_bullet_num(
-    event: GroupMessageEvent, arg: Message = CommandArg(), state: T_State = State()
+    event: GroupMessageEvent, state: T_State, arg: Message = CommandArg()
 ):
     msg = arg.extract_plain_text().strip()
     if state["bullet_num"]:
@@ -113,7 +114,7 @@ async def get_bullet_num(
 async def _(
     bot: Bot,
     event: GroupMessageEvent,
-    state: T_State = State(),
+    state: T_State,
     arg: Message = CommandArg(),
 ):
     msg = arg.extract_plain_text().strip()
@@ -208,7 +209,7 @@ async def _(event: GroupMessageEvent):
 
 
 @russian_rank.handle()
-async def _(event: GroupMessageEvent, state: T_State = State()):
+async def _(event: GroupMessageEvent, state: T_State):
     msg = await russian_manager.rank(state["_prefix"]["raw_command"], event.group_id)
     await russian_rank.send(msg)
 
